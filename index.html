@@ -42,9 +42,7 @@
 
             retVal = retVal.splice((Math.floor(Math.random() * retVal.length)), 0, symbol)
 
-            //console.log(retVal);
             if (pattern.test(retVal)) {
-                //console.log(retVal + " is a valid password");
                 valid = true;
             }
         }
@@ -63,35 +61,18 @@
         if (maxPwdToGen > 0) {
 
             //There is a valid number, remove any error div's
-
-
             for (counter = 1; counter <= maxPwdToGen; counter++) {
                 var pwd = generatePassword();
                 var row = [pwd];
                 data.push(row);
             }
 
-            /*
-            //Debug Displaying Code 
-            pgwChild = outputPane.firstChild;
-            if(pgwChild) {
-            	outputPane.replaceChild(contentDiv, pgwChild);
-            }
-            else {
-            	outputPane.appendChild(contentDiv);
-            }
-            */
-
-
             var csvContent = "data:text/csv;charset=utf-8,";
             data.forEach(function(infoArray, index) {
 
                 dataString = infoArray.join(",");
                 csvContent += index < data.length ? dataString + "\n" : dataString;
-
             });
-
-
 
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement("a");
@@ -105,7 +86,7 @@
             outputPane.appendChild(successMsg);
 
 
-            link.click(); // This will download the data file named "my_data.csv".
+            link.click(); // This will download the data file 
         } else {
             var errorMsg = document.createElement("div")
             errorMsg.setAttribute("class", "error");
@@ -184,9 +165,13 @@
     $(document).ready(function() {
         // Check for the various File API support.
         if (window.File && window.FileReader && window.FileList && window.Blob) {
-            // Great success! All the File APIs are supported.
+            // File APIs are supported
         } else {
-            alert('The File APIs are not fully supported in this browser.');
+
+            var errorMsg = document.createElement("div");
+            errorMsg.setAttribute("class", "error");
+            errorMsg.innerHTML = "The File APIs are not fully supported in this browser.";
+            $('.outputPane').append(errorMsg);
         }
 
     });
