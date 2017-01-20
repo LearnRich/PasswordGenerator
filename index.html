@@ -1,0 +1,196 @@
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script>
+    if (!String.prototype.splice) {
+        /**
+         * {JSDoc}
+         *
+         * The splice() method changes the content of a string by removing a range of
+         * characters and/or adding new characters.
+         *
+         * @this {String}
+         * @param {number} start Index at which to start changing the string.
+         * @param {number} delCount An integer indicating the number of old chars to remove.
+         * @param {string} newSubStr The String that is spliced in.
+         * @return {string} A new string with the spliced substring.
+         */
+        String.prototype.splice = function(start, delCount, newSubStr) {
+            return this.slice(0, start) + newSubStr + this.slice(start + Math.abs(delCount));
+        };
+    }
+
+    function generatePassword() {
+        var valid = false;
+        var pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[$@$!%*?&])[A-Za-z\d$@$!%*?&]{8,}/
+        var length = 6,
+            alphaCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            numericCharset = "0123456789",
+            symbolCharset = ".$#*%",
+            retVal = "";
+        while (!valid) {
+            retVal = "";
+            for (var i = 0, n = alphaCharset.length; i < length; ++i) {
+                retVal += alphaCharset.charAt(Math.floor(Math.random() * n));
+            }
+            var number = numericCharset.charAt(Math.floor(Math.random() * numericCharset.length));
+
+            retVal = retVal.splice((Math.floor(Math.random() * retVal.length)), 0, number)
+
+            var symbol = symbolCharset.charAt(Math.floor(Math.random() * symbolCharset.length));
+
+            retVal = retVal.splice((Math.floor(Math.random() * retVal.length)), 0, symbol)
+
+            //console.log(retVal);
+            if (pattern.test(retVal)) {
+                //console.log(retVal + " is a valid password");
+                valid = true;
+            }
+        }
+        return retVal;
+    }
+
+    function generatePasswordFile() {
+        var data = []
+
+        var outputPane = document.getElementById("message");
+        var maxPwdToGen = Math.floor(document.getElementById("generateCount").value);
+
+        // Clear Messages for possible new messages
+        outputPane.innerHTML = "";
+
+        if (maxPwdToGen > 0) {
+
+            //There is a valid number, remove any error div's
+
+
+            for (counter = 1; counter <= maxPwdToGen; counter++) {
+                var pwd = generatePassword();
+                var row = [pwd];
+                data.push(row);
+            }
+
+            /*
+            //Debug Displaying Code 
+            pgwChild = outputPane.firstChild;
+            if(pgwChild) {
+            	outputPane.replaceChild(contentDiv, pgwChild);
+            }
+            else {
+            	outputPane.appendChild(contentDiv);
+            }
+            */
+
+
+            var csvContent = "data:text/csv;charset=utf-8,";
+            data.forEach(function(infoArray, index) {
+
+                dataString = infoArray.join(",");
+                csvContent += index < data.length ? dataString + "\n" : dataString;
+
+            });
+
+
+
+            var encodedUri = encodeURI(csvContent);
+            var link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Generated_Passwords.csv");
+            outputPane.appendChild(link); // Required for FF
+
+            var successMsg = document.createElement("div")
+            successMsg.setAttribute("class", "success");
+            successMsg.innerHTML = maxPwdToGen + " Passwords have been generated.";
+            outputPane.appendChild(successMsg);
+
+
+            link.click(); // This will download the data file named "my_data.csv".
+        } else {
+            var errorMsg = document.createElement("div")
+            errorMsg.setAttribute("class", "error");
+            errorMsg.innerHTML = "Invalid number, please enter a whole number";
+            outputPane.appendChild(errorMsg);
+
+        }
+
+    }
+    </script>
+    <style>
+    .mainDiv {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 22em;
+        height: 16em;
+        margin-top: -8em;
+        /*set to a negative number 1/2 of your height*/
+        margin-left: -11em;
+        /*set to a negative number 1/2 of your width*/
+        border: 1px solid #ccc;
+        background-color: #f3f3f3;
+    }
+    
+    input {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 10px;
+    }
+    
+    .outputPane {
+        font-size: smaller;
+        padding: : 8px;
+        margin-top: 10px;
+        text-align: center;
+    }
+    
+    .error {
+        color: red;
+    }
+    
+    .success {
+        color: green;
+    }
+    
+    .title {
+        font-family: Arial, Helvetica, sans-serif;
+        text-align: center;
+        font-size: larger;
+        font-weight: bold;
+        margin: 8px;
+    }
+    
+    .label {
+        font-size: smaller;
+        text-align: center;
+    }
+    </style>
+</head>
+
+<body>
+    <div class="mainDiv">
+        <div class="inputPane">
+            <div class="title">MyEducation BC
+                <br/>Password Generator</div>
+            <div class="label">Please enter the number of passwords you wish to generate.</div>
+            <input id="generateCount" type="number" name="generateCount" />
+            <input id="btnGenerate" type="button" value="Generate Passwords" onClick="generatePasswordFile()" />
+        </div>
+        <div class="outputPane" id="message">
+        </div>
+    </div>
+    <script>
+    $(document).ready(function() {
+        // Check for the various File API support.
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            // Great success! All the File APIs are supported.
+        } else {
+            alert('The File APIs are not fully supported in this browser.');
+        }
+
+    });
+    </script>
+</body>
+
+</html>
